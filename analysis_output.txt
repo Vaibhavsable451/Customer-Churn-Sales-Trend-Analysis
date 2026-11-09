@@ -1,0 +1,171 @@
+
+========================================================================
+1. RAW DATA
+========================================================================
+(541909, 8)
+  InvoiceNo StockCode                         Description  Quantity     InvoiceDate  UnitPrice  CustomerID         Country
+0    536365    85123A  WHITE HANGING HEART T-LIGHT HOLDER         6  12/1/2010 8:26       2.55     17850.0  United Kingdom
+1    536365     71053                 WHITE METAL LANTERN         6  12/1/2010 8:26       3.39     17850.0  United Kingdom
+2    536365    84406B      CREAM CUPID HEARTS COAT HANGER         8  12/1/2010 8:26       2.75     17850.0  United Kingdom
+Description      1454
+CustomerID     135080
+dtype: int64
+
+========================================================================
+2. CLEANING
+========================================================================
+Exact duplicate rows removed : 5,268
+Cancellation lines (C-invoice): 9,251  (kept separately)
+Zero/negative qty or price    : 2,512  (removed)
+Rows without CustomerID       : 132,186 (25.2%) -> kept for sales trends, excluded from customer analysis
+Non-product lines (postage etc): 2,341  (removed)
+Rows: 541,909 -> 522,537
+
+========================================================================
+3. ENGINEERED FEATURES
+========================================================================
+          InvoiceDate  Revenue YearMonth  Quarter  DayOfWeek  Hour  IsWeekend Country_Group
+0 2010-12-01 08:26:00    15.30   2010-12        4  Wednesday     8      False            UK
+1 2010-12-01 08:26:00    20.34   2010-12        4  Wednesday     8      False            UK
+2 2010-12-01 08:26:00    22.00   2010-12        4  Wednesday     8      False            UK
+3 2010-12-01 08:26:00    20.34   2010-12        4  Wednesday     8      False            UK
+4 2010-12-01 08:26:00    20.34   2010-12        4  Wednesday     8      False            UK
+
+========================================================================
+4. DATA RANGE: 2010-12-01 -> 2011-12-09
+========================================================================
+
+========================================================================
+4a. MONTHLY TREND (last month is partial)
+========================================================================
+             revenue  orders  customers   units    aov  mom_growth_%  rolling_3m_avg
+YearMonth                                                                           
+2010-12     775638.4    1550        884  357529  500.4           NaN             NaN
+2011-01     670380.2    1081        739  386738  620.1         -13.6             NaN
+2011-02     507799.9    1093        757  282627  464.6         -24.3        651272.8
+2011-03     689833.5    1440        973  376182  479.1          35.8        622671.2
+2011-04     515378.0    1235        853  307650  417.3         -25.3        571003.8
+2011-05     739953.0    1668       1054  394653  443.6          43.6        648388.2
+2011-06     737559.0    1525        990  388124  483.6          -0.3        664296.7
+2011-07     688219.3    1452        946  399290  474.0          -6.7        721910.4
+2011-08     724216.5    1339        933  420695  540.9           5.2        716664.9
+2011-09    1028320.4    1818       1259  568700  565.6          42.0        813585.4
+2011-10    1103314.2    2005       1361  619597  550.3           7.3        951950.4
+2011-11    1452116.0    2751       1660  746952  527.9          31.6       1194583.5
+2011-12     614490.9     816        614  312647  753.1         -57.7       1056640.4
+
+Peak month: 2011-11 (£1,452,116); lowest: 2011-02
+Nov+Oct+Dec share of total revenue (Q4): 38.5%
+
+========================================================================
+4b. PIVOT: Revenue by Month x Country_Group
+========================================================================
+Country_Group  International         UK
+YearMonth                              
+2010-12              70406.0   705233.0
+2011-01             124527.0   545853.0
+2011-02              89907.0   417893.0
+2011-03             118380.0   571454.0
+2011-04              50086.0   465292.0
+2011-05             121771.0   618182.0
+2011-06             132528.0   605031.0
+2011-07             111070.0   577149.0
+2011-08             145520.0   578696.0
+2011-09             152269.0   876051.0
+2011-10             191847.0   911467.0
+2011-11             171253.0  1280863.0
+2011-12              43211.0   571280.0
+
+========================================================================
+4c. PIVOT: Revenue by DayOfWeek x Hour (£)
+========================================================================
+DayOfWeek
+Monday       0.164
+Tuesday      0.203
+Wednesday    0.174
+Thursday     0.208
+Friday       0.172
+Saturday     0.000
+Sunday       0.078
+Name: share_of_revenue, dtype: float64
+Busiest hour: 12 | Busiest weekday: Thursday
+NOTE: the dataset contains no Saturday transactions (a known quirk of this retailer data).
+Share of revenue between 10:00 and 15:59: 0.744
+
+========================================================================
+4d. TOP COUNTRIES (ex-UK)
+========================================================================
+              revenue  customers  orders     aov
+Country                                         
+Netherlands  283889.0          9      93  3053.0
+EIRE         270851.0          3     282   960.0
+Germany      205381.0         94     443   464.0
+France       184493.0         87     382   483.0
+Australia    138104.0          9      56  2466.0
+Spain         55707.0         30      88   633.0
+Switzerland   53066.0         21      50  1061.0
+Japan         37416.0          8      19  1969.0
+Belgium       36927.0         25      98   377.0
+Sweden        36829.0          8      34  1083.0
+UK share of revenue: 85.1%
+
+========================================================================
+4e. TOP PRODUCTS
+========================================================================
+                                     revenue  units
+Description                                        
+REGENCY CAKESTAND 3 TIER            174157.0  13851
+PAPER CRAFT , LITTLE BIRDIE         168470.0  80995
+WHITE HANGING HEART T-LIGHT HOLDER  106237.0  37872
+PARTY BUNTING                        99445.0  18283
+JUMBO BAG RED RETROSPOT              94160.0  48371
+MEDIUM CERAMIC TOP STORAGE JAR       81701.0  78033
+RABBIT NIGHT LIGHT                   66870.0  30739
+PAPER CHAIN KIT 50'S CHRISTMAS       64876.0  19329
+ASSORTED COLOUR BIRD ORNAMENT        58928.0  36362
+CHILLI LIGHTS                        54096.0  10302
+
+========================================================================
+5a. RFM SEGMENTS
+========================================================================
+                      customers    revenue  avg_recency_days  avg_orders  avg_spend  customer_%  revenue_%
+Segment                                                                                                   
+Champions                  1136  5827878.9              13.3         9.9     5130.2        26.2       66.7
+Loyal                       827  1314393.0              38.2         3.6     1589.4        19.1       15.0
+Hibernating                1068   510160.2             218.4         1.1      477.7        24.6        5.8
+At Risk (high value)        273   463737.3             137.7         4.9     1698.7         6.3        5.3
+At Risk                     364   319538.5             164.3         2.3      877.9         8.4        3.7
+Needs Attention             347   159191.8              53.7         1.1      458.8         8.0        1.8
+New / Recent                319   142328.0              18.6         1.2      446.2         7.4        1.6
+
+========================================================================
+5b. CONCENTRATION
+========================================================================
+Top 20% of customers generate 74.6% of identified-customer revenue
+Single-order customers: 34.7%
+
+========================================================================
+5c. CHURN (no purchase in final 90 days)
+========================================================================
+Customers active before cut-off: 3,374; churned: 1,458 (43.2%)
+            customers  churn_%
+order_band                    
+1                1372     62.5
+2                 669     47.8
+3-4               660     31.7
+5-9               462     13.9
+10+               211      3.8
+Revenue (pre-cutoff) from churned customers: £1,032,688 (19.2%)
+
+========================================================================
+5d. COHORT RETENTION - average of Jan-2011+ cohorts (Dec-2010 cohort excluded: it includes pre-existing customers)
+========================================================================
+CohortIndex
+1    19.0
+2    21.0
+3    21.6
+6    22.4
+dtype: float64
+Dec-2010 cohort for comparison: {1: 36.5, 3: 38.3, 6: 36.2}
+
+Done. Charts: sales_1..6_*.png; tables: output_*.csv
